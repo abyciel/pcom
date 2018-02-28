@@ -1,0 +1,202 @@
+
+int error = 3;
+int bingo = 2;
+int yellow = 4;
+
+int b1 = 10;
+int b2 = 11;
+int b3 = 12;
+int b4 = 13;
+int sb = 9;
+
+int state1 = 0;
+int state2 = 0;
+int state3 = 0;
+int state4 = 0;
+int statesb = 0;
+
+int rightCode[4] = {4, 2, 3, 1};
+
+bool state = false;
+bool stateOne = false;
+bool stateTwo = false;
+bool stateThree = false;
+bool stateFour = false;
+
+void setup()
+{
+   Serial.begin(9600);
+   
+   pinMode(bingo, OUTPUT);
+   pinMode(error, OUTPUT);
+   pinMode(yellow, OUTPUT);
+   pinMode(b1, INPUT);
+   pinMode(b2, INPUT);
+   pinMode(b3, INPUT);
+   pinMode(b4, INPUT);
+
+
+  Serial.print("right code: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(rightCode[i]);
+  }
+  Serial.println(".");
+  
+}
+
+void loop(){
+  
+    state1 = digitalRead(b1);
+    state2 = digitalRead(b2);
+    state3 = digitalRead(b3);
+    state4 = digitalRead(b4);
+    statesb = digitalRead(sb);
+
+//    Serial.println(state1);
+//    Serial.println(state2);
+//    Serial.println(state3);
+//    Serial.println(state4);
+//    Serial.println(statesb);
+
+
+    if(check4() == true && state == false){
+      Serial.println(codeEntered());
+      yellowBlink();
+      stateFour = true;
+    }
+
+    if(check2() == true){
+      if(stateFour == true){
+        Serial.println(codeEntered());
+        yellowBlink();
+        stateTwo = true;
+        state = false;
+      }else{
+        state = false;
+        stateTwo = false;
+      }
+    }
+
+    if(check1() == true){
+      if(stateTwo == true){
+        Serial.println(codeEntered());
+        yellowBlink();
+        stateOne = true;
+        state = false;
+      }else{
+        state = false;
+        stateOne = false;
+      }
+    }
+
+    if(check3() == true){
+      if(stateOne == true){
+        Serial.println(codeEntered());
+        yellowBlink();
+        stateThree = true;
+        state = true;
+      }else{
+        state = false;
+        stateThree = true;
+      }
+    }
+
+
+    if(checksb() == true){
+      if(state == true){
+        greenBlink();
+      }else{
+        redBlink();
+      }
+      reset();
+    }
+
+
+}
+
+
+
+bool check1(){
+  if(state1){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+bool check2(){
+  if(state2){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+bool check3(){
+  if(state3){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+bool check4(){
+  if(state4){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+
+bool checksb(){
+  if(statesb){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+void yellowBlink(){
+  digitalWrite(yellow, HIGH); 
+  delay(500); 
+  digitalWrite(yellow, LOW);
+  digitalWrite(error, LOW);
+}
+
+void redBlink(){
+  digitalWrite(error, HIGH); 
+  delay(500); 
+  digitalWrite(error, LOW);
+  delay(500); 
+}
+
+void greenBlink(){
+  digitalWrite(bingo, HIGH); 
+  delay(500); 
+  digitalWrite(bingo, LOW);
+  delay(500); 
+}
+
+
+
+int codeEntered(){
+    if(state1 == HIGH){
+      return 1;
+    }else if(state2 == HIGH){
+      return 2;
+    }else if(state3 == HIGH){
+      return 3;
+    }else if(state4 == HIGH){
+      return 4;
+    }
+}
+
+//reset all the states
+void reset(){
+  state = false;
+  stateOne = false;
+  stateTwo = false;
+  stateThree = false;
+  stateFour = false;
+}
