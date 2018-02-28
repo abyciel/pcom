@@ -1,0 +1,50 @@
+/*
+
+Assignment for Physical Computing
+Create a circuit that the LED will light up only 
+when the ultrasonic sensor detect something close and photocell sensor is covered.
+
+*/
+
+
+const int trigPin = 12; //naming a constant value / giving a variable name / #define acts as a find and replace
+const int echoPin = 13;
+const int ledPin = 6;
+const int analogInPin = A0;
+
+int sensorValue = 0;
+
+
+void setup() {
+  Serial.begin (9600);
+  pinMode(trigPin, OUTPUT); //trigPin is sending out the signal
+  pinMode(echoPin, INPUT); //echoPin is retrieving information, therefore it is INPUT
+  pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+  long duration, distance;
+  digitalWrite(trigPin, LOW);  
+  delayMicroseconds(2); 
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration/2) / 29.1; //Time it took for the echo to be received and divided in half then divided by the speed of sound
+
+  sensorValue = analogRead(analogInPin);
+  
+  if(distance < 10 && sensorValue <= 400){
+    analogWrite(ledPin, map(sensorValue, 0, 400, 255, 0));
+    Serial.println("light up");
+    Serial.print(sensorValue);
+    Serial.println(" light");
+    Serial.print(distance);
+    Serial.println(" cm");
+    delay(100); //delay half a second before repeating the loop
+  }else{
+    analogWrite(ledPin, 0);
+    Serial.println("light off");
+  }
+
+}
