@@ -1,0 +1,101 @@
+/*
+physical computing homework
+*/
+
+/*
+ * IRremote: IRrecvDemo - demonstrates receiving IR codes with IRrecv
+ * An IR detector/demodulator must be connected to the input RECV_PIN.
+ * Version 0.1 July, 2009
+ * Copyright 2009 Ken Shirriff
+ * http://arcfn.com
+ */
+
+
+
+#include <IRremote.h>
+
+const int RECV_PIN = 11;
+//const int led1 = 6;
+//const int led2 = 5;
+int brightness = 0;
+int fadeAmount = 50;
+int state[] = {0, 0};
+int led[] = {6, 9};
+
+IRrecv irrecv(RECV_PIN);
+decode_results results;
+
+void setup()
+{
+  Serial.begin(9600);
+  // In case the interrupt driver crashes on setup, give a clue
+  // to the user what's going on.
+  Serial.println("Enabling IRin");
+  irrecv.enableIRIn(); // Start the receiver
+  Serial.println("Enabled11 IRin");
+  pinMode(led[0], OUTPUT);
+  pinMode(led[1], OUTPUT);
+}
+
+void loop() {
+  if (irrecv.decode(&results)) {
+  unsigned int value = results.value;
+  
+  switch(value){
+    
+    case 0x4B1B:
+    if(brightness < 250){
+      brightness = brightness + fadeAmount;
+    }
+    break;
+
+    case 0x9867:
+    if(brightness > 0){
+      brightness = brightness - fadeAmount;
+    }
+    break;
+
+    case 0x30CF:
+    if(state[0] == 1){
+      state[0] = 0;
+      Serial.println("led1 off");
+    }else{
+      state[0] = 1;
+      Serial.println("led1 on");
+    }
+    break;
+
+    case 0x18E7:
+    if(state[1] == 1){
+      state[1] = 0;
+      Serial.println("led2 off");
+    }else{
+      state[1] = 1;
+      Serial.println("led2 on");
+    }
+    break;
+  }
+
+    checkLED();
+    
+    Serial.println(value, HEX);
+    Serial.print("brightness: ");
+    Serial.println(brightness);
+    Serial.print("State: ");
+    Serial.print(state[0]);
+    Serial.println(state[1]);
+    
+    irrecv.resume(); // Receive the next value
+  }
+}
+
+
+void checkLED(){
+    for(int i = 0; i < 2; i++){
+      if(state[i] == 1){
+        analogWrite(led[i], brightness);    
+      }else{
+        analogWrite(led[i], 0);
+      }
+    }
+}
